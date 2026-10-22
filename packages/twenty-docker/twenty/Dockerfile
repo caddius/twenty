@@ -2,7 +2,7 @@
 # Shared build stages (used by both targets)
 # ===========================================================================
 
-FROM node:24-alpine AS common-deps
+FROM node:24.22.1-alpine AS common-deps
 
 WORKDIR /app
 
@@ -74,7 +74,7 @@ RUN if [ -d /app/packages/twenty-front/build ]; then \
 #   docker build --target twenty -f packages/twenty-docker/twenty/Dockerfile .
 # ===========================================================================
 
-FROM node:24-alpine AS twenty
+FROM node:24.22.1-alpine AS twenty
 
 RUN apk add --no-cache curl jq postgresql-client
 
@@ -150,7 +150,7 @@ RUN S6_ARCH=$(cat /tmp/s6arch) && \
     echo "$NOARCH_SUM  s6-overlay-noarch.tar.xz" | sha256sum -c - && \
     echo "$ARCH_SUM  s6-overlay-arch.tar.xz" | sha256sum -c -
 
-FROM node:24-alpine AS twenty-app-dev
+FROM node:24.22.1-alpine AS twenty-app-dev
 
 # s6-overlay
 COPY --from=s6-fetch /tmp/s6-overlay-noarch.tar.xz /tmp/
