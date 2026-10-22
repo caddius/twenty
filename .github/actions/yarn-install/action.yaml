@@ -33,7 +33,17 @@ runs:
       shell: ${{ steps.globals.outputs.ACTION_SHELL }}
       run: |
         yarn config set enableHardenedMode true
-        yarn --immutable --check-cache
+        # Cold installs after a Node pin miss the module cache and Yarn's
+        # zip conversion intermittently fails with UNKNOWN write. Retry it.
+        attempt=1
+        until yarn --immutable --check-cache; do
+          if [ "$attempt" -ge 3 ]; then
+            exit 1
+          fi
+          attempt=$((attempt + 1))
+          echo "yarn install failed, retrying ($attempt/3)"
+          sleep 15
+        done
     - name: Save cache
       if: ${{ steps.cache-node-modules.outputs.cache-hit != 'true' && steps.cache-node-modules.outputs.cache-matched-key == '' }}
       uses: actions/cache/save@v4
